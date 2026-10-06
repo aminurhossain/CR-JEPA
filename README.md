@@ -33,7 +33,7 @@ Cross-modal remote sensing image retrieval aims to retrieve semantically related
 Training and evaluation code is coming soon. The repository currently holds only the architecture layout:
 
 ```text
-src/architectures/
+src/
 ├── stems/
 ├── trunk/
 ├── predictors/
