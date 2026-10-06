@@ -10,7 +10,7 @@
 <sup>1</sup> Space Applications Centre, Indian Space Research Organisation, Ahmedabad, India
 <sup>2</sup> Centre of Studies in Resources Engineering, Indian Institute of Technology Bombay, Mumbai, India
 
-**Paper:** <https://arxiv.org/abs/2606.00706> · **Code:** <https://github.com/aminurhossain/CR-JEPA>
+**Paper:** <https://arxiv.org/abs/2606.00706> · **Code:** coming soon
 
 ## Abstract
 
@@ -18,11 +18,27 @@ Cross-modal remote sensing image retrieval aims to retrieve semantically related
 
 ## Contents
 
+- [Code](#code)
 - [Contributions](#contributions)
 - [Method](#method)
 - [Training setup](#training-setup)
 - [Results](#results)
 - [Citation](#citation)
+
+## Code
+
+Training and evaluation code is coming soon. The repository currently holds only the architecture layout:
+
+```text
+src/architectures/
+├── stems/
+├── trunk/
+├── predictors/
+├── retrieval_heads/
+└── sigreg/
+```
+
+`stems/` is for the modality-specific patch stems, `trunk/` for the shared transformer, `predictors/` for same-modal and cross-modal latent prediction, `retrieval_heads/` for the unified and cross-modal heads, and `sigreg/` for regularization of the raw retrieval projections.
 
 ## Contributions
 
