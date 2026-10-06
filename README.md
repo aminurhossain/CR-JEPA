@@ -35,7 +35,7 @@ Labels define relevance at evaluation time. The training objective is self-super
 
 ## Method
 
-CR-JEPA takes a paired observation \((x^{(a)}, x^{(b)})\). Each modality passes through its own stem, then a shared transformer trunk. Predictive heads forecast masked latent tokens inside a modality and across modalities. Two retrieval heads produce the embeddings used at search time. SIGReg regularizes the raw projections before \(\ell_2\) normalization.
+CR-JEPA takes a paired observation $(x^{(a)}, x^{(b)})$. Each modality passes through its own stem, then a shared transformer trunk. Predictive heads forecast masked latent tokens inside a modality and across modalities. Two retrieval heads produce the embeddings used at search time. SIGReg regularizes the raw projections before $\ell_2$ normalization.
 
 ![CR-JEPA architecture. Each modality goes through a modality-specific stem and a shared transformer trunk. Same-modal and cross-modal predictors forecast masked latent targets. A unified head serves same-modal retrieval and a cross-modal head serves cross-modal search. SIGReg regularizes the raw retrieval projections.](figures/architecture.png)
 
@@ -43,55 +43,43 @@ CR-JEPA takes a paired observation \((x^{(a)}, x^{(b)})\). Each modality passes 
 
 A dataset is a set of paired views and semantic annotations,
 
-\[
+$$
 \mathcal{D}=\{(x_i^{(a)}, x_i^{(b)}, y_i)\}_{i=1}^{N}.
-\]
+$$
 
 The modality pair depends on the benchmark: Sentinel-1 and Sentinel-2 on BEN-14K, optical and SAR on CBRSIR_VS, and panchromatic and multispectral on DSRSID. Retrieval is evaluated in four directions,
 
-\[
+$$
 a \rightarrow a, \quad b \rightarrow b, \quad a \rightarrow b, \quad b \rightarrow a.
-\]
+$$
 
 The first two are same-modal. The last two are cross-modal. On BEN-14K, a retrieved image is relevant when its multi-label set overlaps the query. On CBRSIR_VS and DSRSID, relevance is class equality.
 
 ### Stems, trunk, and predictors
 
-For modality \(m \in \{a, b\}\), the stem maps the image to patch tokens \(h^{(m)} = f_m(x^{(m)})\), and the shared trunk maps those tokens to \(z^{(m)} = g(h^{(m)})\). Tokens are split into visible context \(V^{(m)}\) and masked targets \(M^{(m)}\). The default mask ratio is \(0.5\). The model predicts masked tokens in feature space.
+For modality $m \in \{a, b\}$, the stem maps the image to patch tokens $h^{(m)} = f_m(x^{(m)})$, and the shared trunk maps those tokens to $z^{(m)} = g(h^{(m)})$. Tokens are split into visible context $V^{(m)}$ and masked targets $M^{(m)}$. The default mask ratio is $0.5$. The model predicts masked tokens in feature space.
 
-Two same-modal predictors and one shared cross-modal predictor are query-based: learnable mask queries, target-position embeddings, self-attention, cross-attention to the visible context, and an MLP. The predictive loss is a weighted sum of squared errors on the four routes \(a \rightarrow a\), \(b \rightarrow b\), \(a \rightarrow b\), and \(b \rightarrow a\).
+Two same-modal predictors and one shared cross-modal predictor are query-based: learnable mask queries, target-position embeddings, self-attention, cross-attention to the visible context, and an MLP. The predictive loss is a weighted sum of squared errors on the four routes $a \rightarrow a$, $b \rightarrow b$, $a \rightarrow b$, and $b \rightarrow a$.
 
 ![Predictive and retrieval components. (a) Query-based predictor for masked latent targets. (b) Retrieval head: raw projections for SIGReg and normalized embeddings for retrieval.](figures/predictor_retrieval.png)
 
 ### Decoupled retrieval heads
 
-Visible tokens are mean-pooled. A unified head \(\phi_{\mathrm{uni}}\) embeds that vector for same-modal retrieval. A cross-modal head \(\phi_{\mathrm{cross}}\) embeds it for cross-modal search. Each head returns a raw projection \(r\) and an \(\ell_2\)-normalized embedding \(e\).
+Visible tokens are mean-pooled. A unified head $\phi_{\mathrm{uni}}$ embeds that vector for same-modal retrieval. A cross-modal head $\phi_{\mathrm{cross}}$ embeds it for cross-modal search. Each head returns a raw projection $r$ and an $\ell_2$-normalized embedding $e$.
 
 The cross-modal loss is symmetric batch InfoNCE between the two modalities in the cross-modal space. The unified loss is InfoNCE plus a direct cosine alignment term on paired samples, so the same-modal head learns a modality-consistent semantic space. Within-modality structure is carried by the same-modal predictive routes and the shared trunk.
 
 ### SIGReg and the full objective
 
-Sketched Isotropic Gaussian Regularization (SIGReg), following LeJEPA, is applied to the four raw projections \(r_{\mathrm{cross}}^{(a)}\), \(r_{\mathrm{cross}}^{(b)}\), \(r_{\mathrm{uni}}^{(a)}\), and \(r_{\mathrm{uni}}^{(b)}\) before normalization. Random one-dimensional sketches are matched to a standard Gaussian through the empirical characteristic function.
+Sketched Isotropic Gaussian Regularization (SIGReg), following LeJEPA, is applied to the four raw projections $r_{\mathrm{cross}}^{(a)}$, $r_{\mathrm{cross}}^{(b)}$, $r_{\mathrm{uni}}^{(a)}$, and $r_{\mathrm{uni}}^{(b)}$ before normalization. Random one-dimensional sketches are matched to a standard Gaussian through the empirical characteristic function.
 
-\[
-\mathcal{L}
-=
-\mathcal{L}_{\mathrm{pred}}
-+
-\mathcal{L}_{\mathrm{retr}}
-+
-\lambda_{\mathrm{sigreg}}\mathcal{L}_{\mathrm{sigreg}},
-\qquad
-\mathcal{L}_{\mathrm{retr}}
-=
-\lambda_{\mathrm{cross}}\mathcal{L}_{\mathrm{cross}}
-+
-\lambda_{\mathrm{uni}}\mathcal{L}_{\mathrm{uni}}.
-\]
+$$
+\mathcal{L} = \mathcal{L}_{\mathrm{pred}} + \mathcal{L}_{\mathrm{retr}} + \lambda_{\mathrm{sigreg}}\mathcal{L}_{\mathrm{sigreg}}, \qquad \mathcal{L}_{\mathrm{retr}} = \lambda_{\mathrm{cross}}\mathcal{L}_{\mathrm{cross}} + \lambda_{\mathrm{uni}}\mathcal{L}_{\mathrm{uni}}.
+$$
 
 ### Inference
 
-Each image is encoded by its stem and the shared trunk, then projected by the head for that search direction. Same-modal retrieval uses \(e_{\mathrm{uni}}\). Cross-modal retrieval uses \(e_{\mathrm{cross}}\). Ranking uses cosine similarity. When the query and gallery share an index, the trivial self-match is removed.
+Each image is encoded by its stem and the shared trunk, then projected by the head for that search direction. Same-modal retrieval uses $e_{\mathrm{uni}}$. Cross-modal retrieval uses $e_{\mathrm{cross}}$. Ranking uses cosine similarity. When the query and gallery share an index, the trivial self-match is removed.
 
 ## Training setup
 
@@ -99,11 +87,11 @@ The same backbone, predictor, and retrieval-head configuration is used on all th
 
 | Item | Setting |
 |---|---|
-| Input | \(224 \times 224\), patch size 16 |
+| Input | 224 × 224, patch size 16 |
 | Channels | BEN-14K: S1 = 2, S2 = 12. CBRSIR_VS: RGB and SAR intensity. DSRSID: PAN = 1, MS = 4 |
 | Model | Embedding 512, 8 heads, trunk depth 12, predictor depth 6, retrieval dimension 256, mask ratio 0.5 |
 | Optimizer | AdamW, weight decay 0.04, gradient clip 1.0, automatic mixed precision |
-| Schedule | Learning rate \(10^{-4} \rightarrow 10^{-3} \rightarrow 10^{-6}\), cosine decay, 15 warmup epochs, 400 epochs |
+| Schedule | Learning rate 10<sup>−4</sup> → 10<sup>−3</sup> → 10<sup>−6</sup>, cosine decay, 15 warmup epochs, 400 epochs |
 | Batch | Train 512, evaluate 256, on NVIDIA A100 80 GB GPUs |
 | Size | 117.93M trainable parameters, about 9.6 GFLOPs per image, 17 ms average latency |
 
@@ -133,7 +121,7 @@ Multi-label retrieval. Metric is F1@5 (%). Published baselines follow the X-JEPA
 
 Relative to X-JEPA, the cross-modal gains are 14.59 F1@5 on S1→S2 and 11.67 on S2→S1, with 117.93M parameters against 172.86M, 9.6 GFLOPs against 10.8, and 17 ms against 20 ms.
 
-Across five seeds, CR-JEPA scores \(75.51 \pm 0.32\), \(82.89 \pm 0.13\), \(75.78 \pm 0.54\), and \(75.46 \pm 0.51\) F1@5 on S1→S1, S2→S2, S1→S2, and S2→S1.
+Across five seeds, CR-JEPA scores $75.51 \pm 0.32$, $82.89 \pm 0.13$, $75.78 \pm 0.54$, and $75.46 \pm 0.51$ F1@5 on S1→S1, S2→S2, S1→S2, and S2→S1.
 
 ### CBRSIR_VS and DSRSID
 
@@ -165,11 +153,11 @@ Component ablation, F1@5. The full model has the highest average, 77.30.
 
 | Variant | S1→S1 | S2→S2 | S1→S2 | S2→S1 | Avg. |
 |---|---:|---:|---:|---:|---:|
-| \(\mathcal{L}_{\mathrm{pred}}+\mathcal{L}_{\mathrm{uni}}\) | 74.44 | 77.68 | 75.38 | 74.79 | 75.57 |
+| L<sub>pred</sub> + L<sub>uni</sub> | 74.44 | 77.68 | 75.38 | 74.79 | 75.57 |
 | Without SIGReg | 74.53 | 77.89 | 74.32 | 75.01 | 75.44 |
 | Best partial predictive routing | **75.67** | <u>80.92</u> | **76.13** | <u>75.18</u> | <u>76.98</u> |
 | Fully independent predictors | 74.97 | 78.42 | 75.72 | 74.63 | 75.94 |
-| Three-head + \(\mathcal{L}_{\mathrm{same}}\) | 74.02 | 76.11 | 75.03 | 74.92 | 75.02 |
+| Three-head + L<sub>same</sub> | 74.02 | 76.11 | 75.03 | 74.92 | 75.02 |
 | Single retrieval head | 58.51 | 68.71 | 32.43 | 49.63 | 52.32 |
 | Dual-encoder variant | 70.34 | 75.80 | 67.34 | 71.68 | 71.29 |
 | **CR-JEPA** | <u>75.11</u> | **82.87** | <u>75.82</u> | **75.40** | **77.30** |
