@@ -30,10 +30,11 @@ Cross-modal remote sensing image retrieval aims to retrieve semantically related
 
 ## Code
 
-Training and evaluation code is coming soon. The repository currently holds only the architecture layout:
+Training and evaluation code is coming soon. Each directory is a Python package:
 
 ```text
 src/
+├── __init__.py
 ├── stems/
 ├── trunk/
 ├── predictors/
