@@ -1,5 +1,6 @@
 # CR-JEPA: Cross-Modal Joint-Embedding Predictive Learning for Remote Sensing Image Retrieval
 
+[![BMVC 2026](https://img.shields.io/badge/BMVC-2026-1f6feb.svg)](https://bmvc2026.bmva.org/)
 [![arXiv](https://img.shields.io/badge/arXiv-2606.00706-b31b1b.svg)](https://arxiv.org/abs/2606.00706)
 [![GitHub](https://img.shields.io/badge/GitHub-aminurhossain%2FCR--JEPA-181717.svg)](https://github.com/aminurhossain/CR-JEPA)
 
@@ -10,7 +11,9 @@
 <sup>1</sup> Space Applications Centre, Indian Space Research Organisation, Ahmedabad, India
 <sup>2</sup> Centre of Studies in Resources Engineering, Indian Institute of Technology Bombay, Mumbai, India
 
-**Paper:** <https://arxiv.org/abs/2606.00706> · **Code:** coming soon
+**Published at:** [37th British Machine Vision Conference (BMVC 2026)](https://bmvc2026.bmva.org/), 23–26 November 2026, Lancaster, UK. [Accepted papers](https://bmvc2026.bmva.org/programme/accepted_papers/).
+
+**Preprint:** <https://arxiv.org/abs/2606.00706> · **Code:** coming soon
 
 ## Abstract
 
@@ -183,12 +186,14 @@ The supplementary material reports loss-term combinations, predictor routing and
 ## Citation
 
 ```bibtex
-@article{hossain2026crjepa,
-  title   = {CR-JEPA: Cross-Modal Joint-Embedding Predictive Learning for Remote Sensing Image Retrieval},
-  author  = {Hossain, Md Aminur and Patel, Ayush V. and Dube, Nitant and Banerjee, Biplab},
-  journal = {arXiv preprint arXiv:2606.00706},
-  year    = {2026},
-  url     = {https://arxiv.org/abs/2606.00706}
+@inproceedings{hossain2026crjepa,
+  title     = {CR-JEPA: Cross-Modal Joint-Embedding Predictive Learning for Remote Sensing Image Retrieval},
+  author    = {Hossain, Md Aminur and Patel, Ayush V. and Dube, Nitant and Banerjee, Biplab},
+  booktitle = {Proceedings of the 37th British Machine Vision Conference (BMVC)},
+  year      = {2026},
+  publisher = {BMVA},
+  address   = {Lancaster, UK},
+  url       = {https://arxiv.org/abs/2606.00706}
 }
 ```
 
